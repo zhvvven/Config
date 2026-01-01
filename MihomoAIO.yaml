@@ -87,7 +87,6 @@ dns:
     - quic://223.6.6.6:853
     - https://dns.nextdns.io/85a56e
 
-# 策略组引用
 Providers:	&Providers	{type: http, interval: 86400, proxy: DIRECT, health-check: {enable: true, url: 'https://connectivitycheck.gstatic.com/generate_204', interval: 300}, exclude-filter: '(?i)流量|倍率|轮询|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|失联|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|COM|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author'}
 Select:		&Select		{type: select, interval: 300, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204'}
 UrlTest:	&UrlTest	{type: url-test, interval: 30, tolerance: 20, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
@@ -110,32 +109,31 @@ itxt:	&itxt	{type: http, behavior: ipcidr, format: text, interval: 864000}
 dmrs:	&dmrs	{type: http, behavior: domain, format: mrs, interval: 864000}
 imrs:	&imrs	{type: http, behavior: ipcidr, format: mrs, interval: 864000}
 
-# &flag=meta&types=all
 proxy-providers:
   飞兔云:
     <<: *Providers
-    url: 飞兔云订阅
+    url:
     path: ./providers/飞兔云.yaml
     override:
       additional-prefix: "[飞兔]"
 
   淘气兔:
     <<: *Providers
-    url: 淘气兔订阅
+    url:
     path: ./providers/淘气兔.yaml
     override:
       additional-prefix: "[淘气]"
 
   九月鹿:
     <<: *Providers
-    url: 九月鹿订阅
+    url:
     path: ./providers/九月鹿.yaml
     override:
       additional-prefix: "[九月鹿]"
 
   阿拉丁:
     <<: *Providers
-    url: 阿拉丁订阅
+    url:
     path: ./providers/阿拉丁.yaml
     override:
       additional-prefix: "[阿拉丁]"
@@ -177,4 +175,5 @@ rules:
   - RULE-SET, AdRules, REJECT
   - GEOSITE, cn, DIRECT
   - GEOIP, cn, DIRECT
+
   - MATCH, 节点选择
