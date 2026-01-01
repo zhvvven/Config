@@ -1,0 +1,180 @@
+#####################################
+#  ░▒▓██████▓▒░░▒▓█▓▒░░▒▓██████▓▒░  #
+# ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ #
+# ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ #
+# ░▒▓████████▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ #
+# ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ #
+# ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ #
+# ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓██████▓▒░  #
+#####################################
+# Name: MihomoAllInOne_Full
+# Designer: zhvvven
+# Version: v1-260101
+# Date: 2026-01-01
+
+mixed-port: 7890
+ipv6: true
+allow-lan: true
+unified-delay: true
+tcp-concurrent: true
+global-ua: ClashMetaForAndroid/2.11.1
+external-controller: 127.0.0.1:9090
+
+geodata-mode: true
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://d.inktimerecord.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
+  geosite: "https://d.inktimerecord.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+
+find-process-mode: strict
+keep-alive-interval: 1800
+global-client-fingerprint: random
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - 'geosite:cn,private'
+
+tun:
+  enable: true
+  stack: mixed
+  device: mihomo
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+  strict-route: true
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  listen: 0.0.0.0:1053
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "geosite:cn,private"
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+  nameserver:
+    - https://1.1.1.1/dns-query#h3=true
+    - https://1.0.0.1/dns-query#h3=true
+    - https://185.222.222.222/dns-query#h3=true
+    - https://45.11.45.11/dns-query#h3=true
+    - quic://94.140.14.14:853
+    - quic://94.140.15.15:853
+    - https://dns.nextdns.io/85a56e
+  direct-nameserver:
+    - https://223.5.5.5/dns-query#h3=true
+    - https://223.6.6.6/dns-query#h3=true
+    - quic://223.5.5.5:853
+    - quic://223.6.6.6:853
+    - https://dns.nextdns.io/85a56e
+
+# 策略组引用
+Providers:	&Providers	{type: http, interval: 86400, proxy: DIRECT, health-check: {enable: true, url: 'https://connectivitycheck.gstatic.com/generate_204', interval: 300}, exclude-filter: '(?i)流量|倍率|轮询|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|失联|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|COM|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author'}
+Select:		&Select		{type: select, interval: 300, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204'}
+UrlTest:	&UrlTest	{type: url-test, interval: 30, tolerance: 20, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
+Balance:	&Balance	{type: load-balance, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', strategy: consistent-hashing, hidden: true}
+FallBack:	&FallBack	{type: fallback, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
+
+Used:		&Used		[飞兔云, 淘气兔, 九月鹿, 阿拉丁]
+FilterHK:	&FilterHK	"(?i)香港|🇭🇰|HK|Hong"
+FilterSG:	&FilterSG	"(?i)新加坡|🇸🇬|SG|Singapore"
+FilterJP:	&FilterJP	"(?i)日本|🇯🇵|JP|Japan"
+FilterKR:	&FilterKR	"(?i)韩国|🇰🇷|KR|Korea"
+FilterUS:	&FilterUS	"(?i)美国|🇺🇸|US|America|United States"
+
+cyaml:	&cyaml	{type: http, behavior: classical, interval: 864000}
+dyaml:	&dyaml	{type: http, behavior: domain, interval: 864000}
+iyaml:	&iyaml	{type: http, behavior: ipcidr, interval: 864000}
+ctxt:	&ctxt	{type: http, behavior: classical, format: text, interval: 864000}
+dtxt:	&dtxt	{type: http, behavior: domain, format: text, interval: 864000}
+itxt:	&itxt	{type: http, behavior: ipcidr, format: text, interval: 864000}
+dmrs:	&dmrs	{type: http, behavior: domain, format: mrs, interval: 864000}
+imrs:	&imrs	{type: http, behavior: ipcidr, format: mrs, interval: 864000}
+
+# &flag=meta&types=all
+proxy-providers:
+  飞兔云:
+    <<: *Providers
+    url: 飞兔云订阅
+    path: ./providers/飞兔云.yaml
+    override:
+      additional-prefix: "[飞兔]"
+
+  淘气兔:
+    <<: *Providers
+    url: 淘气兔订阅
+    path: ./providers/淘气兔.yaml
+    override:
+      additional-prefix: "[淘气]"
+
+  九月鹿:
+    <<: *Providers
+    url: 九月鹿订阅
+    path: ./providers/九月鹿.yaml
+    override:
+      additional-prefix: "[九月鹿]"
+
+  阿拉丁:
+    <<: *Providers
+    url: 阿拉丁订阅
+    path: ./providers/阿拉丁.yaml
+    override:
+      additional-prefix: "[阿拉丁]"
+  
+proxy-groups:
+  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 韩国自动, 美国自动], icon: https://d.inktimerecord.com/https://raw.githubusercontent.com/Semporia/Hand-Painted-icon/master/Universal/Airport.png}
+
+  - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://d.inktimerecord.com/https://raw.githubusercontent.com/NB921/picture/main/chatgpt.png}
+
+  - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://d.inktimerecord.com/https://raw.githubusercontent.com/NB921/picture/main/Telegram.png}
+
+  - {name: 油管无广, <<: *Select, include-all: true, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择],icon: https://d.inktimerecord.com/https://raw.githubusercontent.com/NB921/picture/main/Youtube1.png}
+
+  - {name: 香港自动, <<: *UrlTest, use: *Used, filter: *FilterHK}
+
+  - {name: 日本自动, <<: *UrlTest, use: *Used, filter: *FilterJP}
+
+  - {name: 狮城自动, <<: *UrlTest, use: *Used, filter: *FilterSG}
+  
+  - {name: 韩国自动, <<: *UrlTest, use: *Used, filter: *FilterKR}
+
+  - {name: 美国自动, <<: *UrlTest, use: *Used, filter: *FilterUS}
+
+rule-providers: 
+  anti-AD:   {<<: *dyaml, url: https://anti-ad.net/clash.yaml, path: ./ruleset/anti-AD.yaml}
+
+  AdRules:   {<<: *dmrs, url: https://adrules.top/adrules-mihomo.mrs, path: ./ruleset/AdRules.mrs}
+
+rules:
+  - DOMAIN-SUFFIX, api.chatanywhere.tech, DIRECT
+  - DOMAIN-SUFFIX, bing.com, DIRECT
+  - DOMAIN-SUFFIX, qwen.ai, 人工智障
+  - GEOIP, telegram, 电报信息
+  - GEOSITE, telegram, 电报信息
+  - GEOSITE, category-ai-!cn, 人工智障
+  - GEOSITE, youtube, 油管无广
+  - GEOSITE, category-games@cn, DIRECT
+  - RULE-SET, anti-AD, REJECT
+  - RULE-SET, AdRules, REJECT
+  - GEOSITE, cn, DIRECT
+  - GEOIP, cn, DIRECT
+  - MATCH, 节点选择
