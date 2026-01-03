@@ -177,5 +177,3 @@ rules:
   - GEOIP, cn, DIRECT
 
   - MATCH, 节点选择
-
-
