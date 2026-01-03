@@ -9,8 +9,8 @@
 #####################################
 # Name: MihomoAllInOne_Full
 # Designer: zhvvven
-# Version: v1-260101
-# Date: 2026-01-01
+# Version: v1-260103
+# Date: 2026-01-03
 
 mixed-port: 7890
 ipv6: true
@@ -25,8 +25,8 @@ geodata-loader: standard
 geo-auto-update: true
 geo-update-interval: 24
 geox-url:
-  geoip: "https://ghproxy.fuckseu.site/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
-  geosite: "https://ghproxy.fuckseu.site/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
 
 find-process-mode: strict
 keep-alive-interval: 1800
@@ -139,13 +139,13 @@ proxy-providers:
       additional-prefix: "[阿拉丁]"
   
 proxy-groups:
-  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 韩国自动, 美国自动], icon: https://ghproxy.fuckseu.site/https://raw.githubusercontent.com/Semporia/Hand-Painted-icon/master/Universal/Airport.png}
+  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 韩国自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
 
-  - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://ghproxy.fuckseu.site/https://raw.githubusercontent.com/NB921/picture/main/chatgpt.png}
+  - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/chatgpt.png}
 
-  - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://ghproxy.fuckseu.site/https://raw.githubusercontent.com/NB921/picture/main/Telegram.png}
+  - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Telegram.png}
 
-  - {name: 油管无广, <<: *Select, include-all: true, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择],icon: https://ghproxy.fuckseu.site/https://raw.githubusercontent.com/NB921/picture/main/Youtube1.png}
+  - {name: 油管无广, <<: *Select, include-all: true, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择],icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Youtube1.png}
 
   - {name: 香港自动, <<: *UrlTest, use: *Used, filter: *FilterHK}
 
@@ -177,4 +177,5 @@ rules:
   - GEOIP, cn, DIRECT
 
   - MATCH, 节点选择
+
 
