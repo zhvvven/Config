@@ -1,4 +1,32 @@
-- name: Update hosts in YAML
+name: Update Mihomo Hosts (Merge Mode)
+
+on:
+  schedule:
+    # 北京时间每天 20:00 运行 (UTC 12:00)
+    - cron: '0 12 * * *'
+  workflow_dispatch: # 允许手动点击按钮运行
+
+jobs:
+  update-hosts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 需要写入权限来提交代码
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests ruamel.yaml
+
+      - name: Update hosts in YAML
         shell: python
         run: |
           import requests
@@ -18,12 +46,14 @@
               print(f"Error fetching hosts: {e}")
               exit(1)
 
-          # 3. 解析 Hosts 内容 -> 转换为字典
+          # 3. 解析 Hosts 内容 -> 转换为字典 {Domain: IP}
           github_hosts_map = {}
           for line in hosts_content.splitlines():
               line = line.strip()
+              # 跳过注释和空行
               if not line or line.startswith('#'):
                   continue
+              
               parts = line.split()
               if len(parts) >= 2:
                   ip = parts[0]
@@ -32,22 +62,22 @@
 
           print(f"Parsed {len(github_hosts_map)} GitHub hosts entries.")
 
-          # 4. 读取目标 YAML 文件 (增加 Tab 自动修复功能)
+          # 4. 读取目标 YAML 文件 (包含自动修复 Tab 缩进错误的功能)
           yaml = YAML()
           yaml.preserve_quotes = True
+          # 设置标准缩进：mapping=2 (键值对), sequence=4 (列表), offset=2
           yaml.indent(mapping=2, sequence=4, offset=2)
 
           try:
+              # 先以纯文本方式读取，替换掉所有 Tab 键
               with open(target_file, 'r', encoding='utf-8') as f:
                   raw_content = f.read()
               
-              # --- 【关键修复开始】 ---
-              # 检测是否存在 Tab 键，如果存在则替换为 2 个空格
               if '\t' in raw_content:
-                  print("⚠️ Warning: Tab characters detected in YAML. Replacing with spaces...")
+                  print("⚠️ Warning: Tab characters detected in YAML. Automatically replacing with 2 spaces...")
                   raw_content = raw_content.replace('\t', '  ')
-              # --- 【关键修复结束】 ---
-
+              
+              # 加载修复后的内容
               data = yaml.load(raw_content)
           except FileNotFoundError:
               print(f"File {target_file} not found!")
@@ -60,10 +90,28 @@
           if 'hosts' not in data or data['hosts'] is None:
               data['hosts'] = {}
 
+          # 使用 update()：
+          # - 保留文件中原有的 miwifi.com 等自定义域名
+          # - 覆盖/新增 GitHub 相关的域名
           data['hosts'].update(github_hosts_map)
 
           # 6. 写回文件
           with open(target_file, 'w', encoding='utf-8') as f:
               yaml.dump(data, f)
           
-          print("MihomoAIO.yaml updated successfully.")
+          print("MihomoAIO.yaml updated successfully (Tabs fixed & Custom configs retained).")
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # 检查是否有文件变动
+          if [[ -n $(git status -s) ]]; then
+            git add MihomoAIO.yaml
+            git commit -m "chore: update github hosts and fix formatting"
+            git push
+            echo "Changes pushed to repository."
+          else
+            echo "No changes detected."
+          fi
