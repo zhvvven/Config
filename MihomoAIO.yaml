@@ -62,14 +62,6 @@ tun:
   strict-route: true
 
 hosts:
-  miwifi.com: 192.168.31.2
-  services.googleapis.cn: services.googleapis.com
-  cn.bing.com: global.bing.com
-  dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
-  doh.pub: [1.12.12.12, 1.12.12.21, 120.53.53.53]
-  dns.google: [8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844]
-  cloudflare-dns.com: [1.1.1.1, 1.0.0.1, 2606:4700:4700::1111, 
-        2606:4700:4700::1001]
   alive.github.com: 140.82.114.25
   api.github.com: 20.205.243.168
   api.individual.githubcopilot.com: 140.82.114.21
@@ -233,6 +225,4 @@ rules:
   - RULE-SET, AdRules, REJECT
   - GEOSITE, cn, DIRECT
   - GEOIP, cn, DIRECT
-
   - MATCH, 节点选择
-
