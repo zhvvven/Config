@@ -167,13 +167,13 @@ proxy-providers:
       additional-prefix: "[阿拉丁]"
 
 proxy-groups:
-  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
+  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 坡县自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
   - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/chatgpt.png}
   - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Telegram.png}
   - {name: 油管无广, <<: *Select, use: *Used, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择], icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Youtube1.png}
   - {name: 香港自动, <<: *UrlTest, use: *Used, filter: *FilterHK}
   - {name: 日本自动, <<: *UrlTest, use: *Used, filter: *FilterJP}
-  - {name: 韩国自动, <<: *UrlTest, use: *Used, filter: *FilterKR}
+  - {name: 坡县自动, <<: *UrlTest, use: *Used, filter: *FilterSG}
   - {name: 美国自动, <<: *UrlTest, use: *Used, filter: *FilterUS}
 
 rule-providers:
