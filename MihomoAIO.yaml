@@ -1,7 +1,7 @@
 # Name: MihomoAllInOne_Full
 # Designer: zhvvven
 # Version: v2
-# Date: 2026-01-27
+# Date: 2026-02-06
 
 mixed-port: 7890
 allow-lan: true
@@ -93,23 +93,22 @@ hosts:
 dns:
   enable: true
   cache-algorithm: arc
-  listen: 0.0.0.0:1053
   prefer-h3: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  default-nameserver:
+    - quic://223.5.5.5:853
+    - quic://223.6.6.6:853
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - "geosite:cn,private"
     - "*.msftconnecttest.com"
     - "*.msftncsi.com"
-  default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://sm2.doh.pub/dns-query
     - https://doh.onedns.net/dns-query
-    - quic://223.5.5.5:853
-    - quic://223.6.6.6:853
   nameserver-policy:
     "geosite:gfw,geolocation-!cn":
       - https://1.1.1.1/dns-query
