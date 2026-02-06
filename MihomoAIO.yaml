@@ -4,7 +4,6 @@
 # Date: 2026-02-06
 
 mixed-port: 7890
-allow-lan: true
 unified-delay: true
 tcp-concurrent: true
 external-controller: 127.0.0.1:9090
@@ -16,9 +15,10 @@ geox-url:
   geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
   geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
 
+keep-alive-interval: 15
+keep-alive-idle: 15
+disable-keep-alive: false
 find-process-mode: strict
-keep-alive-interval: 1800
-global-client-fingerprint: random
 
 profile:
   store-selected: true
