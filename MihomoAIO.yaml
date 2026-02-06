@@ -12,8 +12,8 @@ geodata-loader: standard
 geo-auto-update: true
 geo-update-interval: 24
 geox-url:
-  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
-  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  geoip: "https://testingcf.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-geodata/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-geodata/geosite.dat"
 
 keep-alive-interval: 15
 keep-alive-idle: 15
@@ -35,7 +35,7 @@ sniffer:
     QUIC:
       ports: [443, 8443]
   skip-domain:
-    - 'geosite:cn,private'
+    - 'geosite:cn,private,fakeip-filter'
 
 tun:
   enable: true
@@ -185,9 +185,9 @@ rules:
   - RULE-SET, AdRules, REJECT
   - GEOIP, telegram, 电报信息
   - GEOSITE, telegram, 电报信息
-  - GEOSITE, category-ai-!cn, 人工智障
+  - GEOSITE, ai, 人工智障
   - GEOSITE, youtube, 油管无广
-  - GEOSITE, category-games@cn, DIRECT
+  - GEOSITE, games-cn, DIRECT
   - GEOSITE, cn, DIRECT
   - GEOIP, cn, DIRECT
   - MATCH, 节点选择
