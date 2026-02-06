@@ -1,10 +1,9 @@
 # Name: MihomoAllInOne_Full
 # Designer: zhvvven
 # Version: v2
-# Date: 2026-01-28
+# Date: 2026-02-06
 
 mixed-port: 7890
-allow-lan: true
 unified-delay: true
 tcp-concurrent: true
 external-controller: 127.0.0.1:9090
@@ -16,9 +15,10 @@ geox-url:
   geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
   geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
 
+keep-alive-interval: 15
+keep-alive-idle: 15
+disable-keep-alive: false
 find-process-mode: strict
-keep-alive-interval: 1800
-global-client-fingerprint: random
 
 profile:
   store-selected: true
@@ -51,23 +51,22 @@ tun:
 dns:
   enable: true
   cache-algorithm: arc
-  listen: 0.0.0.0:1053
   prefer-h3: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  default-nameserver:
+    - quic://223.5.5.5:853
+    - quic://223.6.6.6:853
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - "geosite:cn,private"
     - "*.msftconnecttest.com"
     - "*.msftncsi.com"
-  default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://sm2.doh.pub/dns-query
     - https://doh.onedns.net/dns-query
-    - quic://223.5.5.5:853
-    - quic://223.6.6.6:853
   nameserver-policy:
     "geosite:gfw,geolocation-!cn":
       - https://1.1.1.1/dns-query
@@ -87,7 +86,6 @@ Used: &Used [飞兔云, 淘气兔, 九月鹿, 阿拉丁]
 FilterHK: &FilterHK "(?i)香港|🇭🇰|HK|Hong"
 FilterSG: &FilterSG "(?i)新加坡|🇸🇬|SG|Singapore"
 FilterJP: &FilterJP "(?i)日本|🇯🇵|JP|Japan"
-FilterKR: &FilterKR "(?i)韩国|🇰🇷|KR|Korea"
 FilterUS: &FilterUS "(?i)美国|🇺🇸|US|America|United States"
 
 cyaml: &cyaml {type: http, behavior: classical, interval: 864000}
@@ -126,14 +124,13 @@ proxy-providers:
       additional-prefix: "[阿拉丁]"
 
 proxy-groups:
-  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 韩国自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
+  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
   - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/chatgpt.png}
   - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Telegram.png}
   - {name: 油管无广, <<: *Select, use: *Used, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择], icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Youtube1.png}
   - {name: 香港自动, <<: *UrlTest, use: *Used, filter: *FilterHK}
   - {name: 日本自动, <<: *UrlTest, use: *Used, filter: *FilterJP}
   - {name: 狮城自动, <<: *UrlTest, use: *Used, filter: *FilterSG}
-  - {name: 韩国自动, <<: *UrlTest, use: *Used, filter: *FilterKR}
   - {name: 美国自动, <<: *UrlTest, use: *Used, filter: *FilterUS}
 
 rule-providers:
@@ -149,7 +146,6 @@ rule-providers:
 
 rules:
   - DOMAIN-SUFFIX, api.chatanywhere.tech, DIRECT
-  - DOMAIN-SUFFIX, bing.com, DIRECT
   - RULE-SET, anti-AD, REJECT
   - RULE-SET, AdRules, REJECT
   - RULE-SET, telegramIP, 电报信息
