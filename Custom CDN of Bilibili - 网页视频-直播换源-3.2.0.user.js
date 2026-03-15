@@ -39,13 +39,14 @@
         { name: "腾讯云 CDN (mirrorcos)", value: "upos-sz-mirrorcos.bilivideo.com" },
         { name: "腾讯云 VOD (mirrorcosb)", value: "upos-sz-mirrorcosb.bilivideo.com" },
         { name: "腾讯云 CDN (mirrorcoso1)", value: "upos-sz-mirrorcoso1.bilivideo.com" },
+        { name: "腾讯云 (tf_tx)", value: "upos-tf-all-tx.bilivideo.com" },
         { name: "华为云 融合 (mirrorhw)", value: "upos-sz-mirrorhw.bilivideo.com" },
         { name: "华为云 融合 (mirrorhwb)", value: "upos-sz-mirrorhwb.bilivideo.com" },
         { name: "华为云 融合 (mirrorhwo1)", value: "upos-sz-mirrorhwo1.bilivideo.com" },
         { name: "华为云 融合 (mirror08c)", value: "upos-sz-mirror08c.bilivideo.com" },
         { name: "华为云 融合 (mirror08h)", value: "upos-sz-mirror08h.bilivideo.com" },
         { name: "华为云 融合 (mirror08ct)", value: "upos-sz-mirror08ct.bilivideo.com" },
-        { name: "百度云 CDN (mirrorbd)", value: "upos-sz-mirrorbd.bilivideo.com" },
+        { name: "华为云 (tf_hw)", value: "upos-tf-all-hw.bilivideo.com" },
         { name: "手动输入自定义节点", value: manualRegionName }
     ];
 
