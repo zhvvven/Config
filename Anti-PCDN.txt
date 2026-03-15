@@ -1,31 +1,54 @@
 !Title: Anti-PCDN & WebRTC Rules (CN)
-!Version: 20260315221527
-!Last modified: Sun Mar 15 22:15:27 UTC+8 2026
-!Updated: 2026-03-15T22:15:27+08:00
+!Version: 20260315232300
+!Last modified: Sun Mar 15 23:23:00 UTC+8 2026
+!Updated: 2026-03-15T23:23:00+08:00
 !Expires: 1 days
 !Homepage: Custom Local Filter
-!Description: 屏蔽国内视频/直播平台 PCDN 与 WebRTC 流量
-!Total lines: 22
-||gjfzpt.cn^
+!Description: 屏蔽国内视频/直播平台 PCDN 与 WebRTC 流量 (分类整理版)
+
+! =========================================================
+! === 1. 哔哩哔哩 (Bilibili) 专用拦截 ===
+! 包含明牌 mCDN 域名、API 调度正则，以及山地玩具、深圳本多等马甲节点
+! =========================================================
+||mcdn.bilivideo.cn^
+||mountaintoys.cn^
 ||szbdyd.com^
+/.*pcdn.*biliapi\.net/
+
+! =========================================================
+! === 2. 直播平台 (斗鱼、虎牙) P2P 与 WebRTC ===
+! 拦截直播 P2P 调度及 WebRTC (STUN) 打洞服务器
+! =========================================================
+||p2p.huya.com^
+||stun.douyucdn.cn^
+||stun1.douyucdn.cn^
+/.*p2p.*douyucdn\.cn/
+
+! =========================================================
+! === 3. 长短视频巨头 (优酷、爱奇艺、腾讯、芒果、快手) ===
+! 涵盖主流视频 APP 的网页端 PCDN 与打洞屏蔽
+! =========================================================
+||tpa-hcdn.iqiyi.com^
+||stun.hitv.com^
+||pcdn.yximgs.com^
+/.*pcdn.*youku\.com/
+/.*p2p.*qq\.com/
+
+! =========================================================
+! === 4. 音频播客平台 (喜马拉雅) ===
+! =========================================================
+||pcdn.xmcdn.com^
+
+! =========================================================
+! === 5. 第三方专业 PCDN 供应商 & 匿名节点网络 ===
+! 包含网心云、星域、白山云下属节点及其他未知第三方边缘节点
+! =========================================================
+||onethingpcs.com^
+||gjfzpt.cn^
 ||bsccdn.net^
 ||pkoplink.com^
 ||saxysec.com^
 ||uhabo.com^
 ||xycdn.com^
 ||kuiniuca.com^
-||onethingpcs.com^
 ||jomodns.cn^
-||p2p.huya.com^
-||stun.douyucdn.cn^
-||stun.hitv.com^
-||stun1.douyucdn.cn^
-||mountaintoys.cn^
-||mcdn.bilivideo.cn^
-||tpa-hcdn.iqiyi.com^
-||pcdn.xmcdn.com^
-||pcdn.yximgs.com^
-/.*pcdn.*biliapi\.net/
-/.*pcdn.*youku\.com/
-/.*p2p.*douyucdn\.cn/
-/.*p2p.*qq\.com/
