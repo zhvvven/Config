@@ -20,6 +20,7 @@
 ||stun.douyucdn.cn^
 ||stun.hitv.com^
 ||stun1.douyucdn.cn^
+||mountaintoys.cn^
 ||mcdn.bilivideo.cn^
 ||tpa-hcdn.iqiyi.com^
 ||pcdn.xmcdn.com^
