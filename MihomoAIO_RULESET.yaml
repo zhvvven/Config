@@ -1,0 +1,158 @@
+# Name: MihomoAllInOne_Full
+# Designer: zhvvven
+# Version: v2
+# Date: 2026-02-06
+
+mixed-port: 7890
+unified-delay: true
+tcp-concurrent: true
+external-controller: 127.0.0.1:9090
+
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+
+keep-alive-interval: 15
+keep-alive-idle: 15
+disable-keep-alive: false
+find-process-mode: strict
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - 'geosite:cn,private'
+
+tun:
+  enable: true
+  stack: mixed
+  device: mihomo
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-detect-interface: true
+  strict-route: true
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  prefer-h3: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  default-nameserver:
+    - quic://223.5.5.5:853
+    - quic://223.6.6.6:853
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "geosite:cn,private"
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://sm2.doh.pub/dns-query
+    - https://doh.onedns.net/dns-query
+  nameserver-policy:
+    "geosite:gfw,geolocation-!cn":
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://sm2.doh.pub/dns-query
+      - https://doh.onedns.net/dns-query
+
+Providers: &Providers {type: http, interval: 86400, health-check: {enable: true, url: 'https://connectivitycheck.gstatic.com/generate_204', interval: 300}, exclude-filter: '(?i)流量|倍率|轮询|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|失联|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|COM|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author'}
+Select: &Select {type: select, interval: 300, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204'}
+UrlTest: &UrlTest {type: url-test, interval: 30, tolerance: 20, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
+Balance: &Balance {type: load-balance, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', strategy: consistent-hashing, hidden: true}
+FallBack: &FallBack {type: fallback, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
+
+Used: &Used [飞兔云, 淘气兔, 九月鹿, 阿拉丁]
+FilterHK: &FilterHK "(?i)香港|🇭🇰|HK|Hong"
+FilterSG: &FilterSG "(?i)新加坡|🇸🇬|SG|Singapore"
+FilterJP: &FilterJP "(?i)日本|🇯🇵|JP|Japan"
+FilterUS: &FilterUS "(?i)美国|🇺🇸|US|America|United States"
+
+cyaml: &cyaml {type: http, behavior: classical, interval: 864000}
+dyaml: &dyaml {type: http, behavior: domain, interval: 864000}
+iyaml: &iyaml {type: http, behavior: ipcidr, interval: 864000}
+ctxt: &ctxt {type: http, behavior: classical, format: text, interval: 864000}
+dtxt: &dtxt {type: http, behavior: domain, format: text, interval: 864000}
+itxt: &itxt {type: http, behavior: ipcidr, format: text, interval: 864000}
+dmrs: &dmrs {type: http, behavior: domain, format: mrs, interval: 864000}
+imrs: &imrs {type: http, behavior: ipcidr, format: mrs, interval: 864000}
+
+proxy-providers:
+  飞兔云:
+    <<: *Providers
+    url:
+    path: ./providers/飞兔云.yaml
+    override:
+      additional-prefix: "[飞兔]"
+  淘气兔:
+    <<: *Providers
+    url:
+    path: ./providers/淘气兔.yaml
+    override:
+      additional-prefix: "[淘气]"
+  九月鹿:
+    <<: *Providers
+    url:
+    path: ./providers/九月鹿.yaml
+    override:
+      additional-prefix: "[九月鹿]"
+  阿拉丁:
+    <<: *Providers
+    url:
+    path: ./providers/阿拉丁.yaml
+    override:
+      additional-prefix: "[阿拉丁]"
+
+proxy-groups:
+  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 狮城自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
+  - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/chatgpt.png}
+  - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Telegram.png}
+  - {name: 油管无广, <<: *Select, use: *Used, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择], icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Youtube1.png}
+  - {name: 香港自动, <<: *UrlTest, use: *Used, filter: *FilterHK}
+  - {name: 日本自动, <<: *UrlTest, use: *Used, filter: *FilterJP}
+  - {name: 狮城自动, <<: *UrlTest, use: *Used, filter: *FilterSG}
+  - {name: 美国自动, <<: *UrlTest, use: *Used, filter: *FilterUS}
+
+rule-providers:
+  telegramIP: {<<: *imrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs, path: ./ruleset/telegramIP.mrs}
+  telegramSITE: {<<: *dmrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs, path: ./ruleset/telegramSITE.mrs}
+  category-ai-!cn: {<<: *dmrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-ai-!cn.mrs, path: ./ruleset/category-ai-!cn.mrs}
+  youtube: {<<: *dmrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs, path: ./ruleset/youtube.mrs}
+  category-games@cn: {<<: *dmrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-games@cn.mrs, path: ./ruleset/category-games@cn.mrs}
+  anti-AD: {<<: *dyaml, url: https://anti-ad.net/clash.yaml, path: ./ruleset/anti-AD.yaml}
+  AdRules: {<<: *dmrs, url: https://adrules.top/adrules-mihomo.mrs, path: ./ruleset/AdRules.mrs}
+  cnSITE: {<<: *dmrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs, path: ./ruleset/cnSITE.mrs}
+  cnIP: {<<: *imrs, url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs, path: ./ruleset/cnIP.mrs}
+
+rules:
+  - DOMAIN-SUFFIX, api.chatanywhere.tech, DIRECT
+  - RULE-SET, anti-AD, REJECT
+  - RULE-SET, AdRules, REJECT
+  - RULE-SET, telegramIP, 电报信息
+  - RULE-SET, telegramSITE, 电报信息
+  - RULE-SET, category-ai-!cn, 人工智障
+  - RULE-SET, youtube, 油管无广
+  - RULE-SET, category-games@cn, DIRECT
+  - RULE-SET, cnSITE, DIRECT
+  - RULE-SET, cnIP, DIRECT
+  - MATCH, 节点选择

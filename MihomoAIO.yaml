@@ -1,0 +1,193 @@
+# Name: MihomoAllInOne_Full
+# Designer: zhvvven
+# Version: v2
+# Date: 2026-02-16
+
+mixed-port: 7890
+unified-delay: true
+tcp-concurrent: true
+external-controller: 127.0.0.1:9090
+
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-geodata/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-geodata/geosite.dat"
+
+keep-alive-interval: 15
+keep-alive-idle: 15
+disable-keep-alive: false
+find-process-mode: strict
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - 'geosite:cn,private'
+
+tun:
+  enable: true
+  stack: mixed
+  device: mihomo
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-detect-interface: true
+  strict-route: true
+
+hosts:
+  alive.github.com: 140.82.114.26
+  api.github.com: 20.205.243.168
+  api.individual.githubcopilot.com: 140.82.114.21
+  avatars.githubusercontent.com: 185.199.110.133
+  avatars0.githubusercontent.com: 185.199.110.133
+  avatars1.githubusercontent.com: 185.199.110.133
+  avatars2.githubusercontent.com: 185.199.110.133
+  avatars3.githubusercontent.com: 185.199.110.133
+  avatars4.githubusercontent.com: 185.199.110.133
+  avatars5.githubusercontent.com: 185.199.110.133
+  camo.githubusercontent.com: 185.199.110.133
+  central.github.com: 140.82.113.22
+  cloud.githubusercontent.com: 185.199.110.133
+  codeload.github.com: 20.205.243.165
+  collector.github.com: 140.82.114.21
+  desktop.githubusercontent.com: 185.199.110.133
+  favicons.githubusercontent.com: 185.199.110.133
+  gist.github.com: 140.82.113.4
+  github-cloud.s3.amazonaws.com: 52.217.118.169
+  github-com.s3.amazonaws.com: 16.15.199.222
+  github-production-release-asset-2e65be.s3.amazonaws.com: 3.5.6.161
+  github-production-repository-file-5c1aeb.s3.amazonaws.com: 16.15.178.141
+  github-production-user-asset-6210df.s3.amazonaws.com: 54.231.194.177
+  github.blog: 192.0.66.2
+  github.com: 20.205.243.166
+  github.community: 140.82.112.18
+  github.githubassets.com: 185.199.109.154
+  github.global.ssl.fastly.net: 151.101.193.194
+  github.io: 185.199.110.153
+  github.map.fastly.net: 185.199.110.133
+  githubstatus.com: 185.199.110.153
+  live.github.com: 140.82.114.26
+  media.githubusercontent.com: 185.199.110.133
+  objects.githubusercontent.com: 185.199.110.133
+  pipelines.actions.githubusercontent.com: 13.107.42.16
+  raw.githubusercontent.com: 185.199.110.133
+  user-images.githubusercontent.com: 185.199.110.133
+  vscode.dev: 13.107.213.73
+  education.github.com: 140.82.113.22
+  private-user-images.githubusercontent.com: 185.199.110.133
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  prefer-h3: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  default-nameserver:
+    - quic://223.5.5.5:853
+    - quic://223.6.6.6:853
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "geosite:cn,private,fakeip-filter"
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://sm2.doh.pub/dns-query
+    - https://doh.onedns.net/dns-query
+  nameserver-policy:
+    "geosite:gfw,geolocation-!cn":
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://sm2.doh.pub/dns-query
+      - https://doh.onedns.net/dns-query
+
+Providers: &Providers {type: http, interval: 86400, health-check: {enable: true, url: 'https://connectivitycheck.gstatic.com/generate_204', interval: 300}, exclude-filter: '(?i)流量|倍率|轮询|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|失联|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|COM|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author'}
+Select: &Select {type: select, interval: 300, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204'}
+UrlTest: &UrlTest {type: url-test, interval: 30, tolerance: 20, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
+Balance: &Balance {type: load-balance, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', strategy: consistent-hashing, hidden: true}
+FallBack: &FallBack {type: fallback, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
+
+Used: &Used [飞兔云, 淘气兔, 九月鹿, 阿拉丁]
+FilterHK: &FilterHK "(?i)香港|🇭🇰|HK|Hong"
+FilterSG: &FilterSG "(?i)新加坡|🇸🇬|SG|Singapore"
+FilterJP: &FilterJP "(?i)日本|🇯🇵|JP|Japan"
+FilterUS: &FilterUS "(?i)美国|🇺🇸|US|America|United States"
+
+cyaml: &cyaml {type: http, behavior: classical, interval: 864000}
+dyaml: &dyaml {type: http, behavior: domain, interval: 864000}
+iyaml: &iyaml {type: http, behavior: ipcidr, interval: 864000}
+ctxt: &ctxt {type: http, behavior: classical, format: text, interval: 864000}
+dtxt: &dtxt {type: http, behavior: domain, format: text, interval: 864000}
+itxt: &itxt {type: http, behavior: ipcidr, format: text, interval: 864000}
+dmrs: &dmrs {type: http, behavior: domain, format: mrs, interval: 864000}
+imrs: &imrs {type: http, behavior: ipcidr, format: mrs, interval: 864000}
+
+proxy-providers:
+  飞兔云:
+    <<: *Providers
+    url:
+    path: ./providers/飞兔云.yaml
+    override:
+      additional-prefix: "[飞兔]"
+  淘气兔:
+    <<: *Providers
+    url:
+    path: ./providers/淘气兔.yaml
+    override:
+      additional-prefix: "[淘气]"
+  九月鹿:
+    <<: *Providers
+    url:
+    path: ./providers/九月鹿.yaml
+    override:
+      additional-prefix: "[九月鹿]"
+  阿拉丁:
+    <<: *Providers
+    url:
+    path: ./providers/阿拉丁.yaml
+    override:
+      additional-prefix: "[阿拉丁]"
+
+proxy-groups:
+  - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 坡县自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
+  - {name: 人工智障, <<: *Select, use: *Used, filter: *FilterUS, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/chatgpt.png}
+  - {name: 电报信息, <<: *Select, use: *Used, filter: *FilterSG, icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Telegram.png}
+  - {name: 油管无广, <<: *Select, use: *Used, filter: "(?i)俄罗斯|🇷🇺|Russia", proxies: [节点选择], icon: https://testingcf.jsdelivr.net/gh/NB921/picture@main/Youtube1.png}
+  - {name: 香港自动, <<: *UrlTest, use: *Used, filter: *FilterHK}
+  - {name: 日本自动, <<: *UrlTest, use: *Used, filter: *FilterJP}
+  - {name: 坡县自动, <<: *UrlTest, use: *Used, filter: *FilterSG}
+  - {name: 美国自动, <<: *UrlTest, use: *Used, filter: *FilterUS}
+
+rule-providers:
+  anti-AD: {<<: *dmrs, url: https://anti-ad.net/mihomo.mrs, path: ./ruleset/anti-AD.mrs}
+  AdRules: {<<: *dmrs, url: https://adrules.top/adrules-mihomo.mrs, path: ./ruleset/AdRules.mrs}
+
+rules:
+  - DOMAIN-SUFFIX, api.chatanywhere.tech, DIRECT
+  - RULE-SET, anti-AD, REJECT
+  - RULE-SET, AdRules, REJECT
+  - GEOIP, telegram, 电报信息
+  - GEOSITE, telegram, 电报信息
+  - GEOSITE, ai, 人工智障
+  - GEOSITE, youtube, 油管无广
+  - GEOSITE, games-cn, DIRECT
+  - GEOSITE, cn, DIRECT
+  - GEOIP, cn, DIRECT
+  - MATCH, 节点选择
