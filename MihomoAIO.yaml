@@ -49,9 +49,9 @@ tun:
   strict-route: true
 
 hosts:
-  alive.github.com: 140.82.112.25
+  alive.github.com: 140.82.113.26
   api.github.com: 20.205.243.168
-  api.individual.githubcopilot.com: 140.82.112.22
+  api.individual.githubcopilot.com: 140.82.114.22
   avatars.githubusercontent.com: 185.199.110.133
   avatars0.githubusercontent.com: 185.199.110.133
   avatars1.githubusercontent.com: 185.199.110.133
@@ -63,24 +63,24 @@ hosts:
   central.github.com: 140.82.114.22
   cloud.githubusercontent.com: 185.199.110.133
   codeload.github.com: 20.205.243.165
-  collector.github.com: 140.82.112.22
+  collector.github.com: 140.82.113.21
   desktop.githubusercontent.com: 185.199.110.133
   favicons.githubusercontent.com: 185.199.110.133
   gist.github.com: 20.205.243.166
-  github-cloud.s3.amazonaws.com: 52.216.56.57
-  github-com.s3.amazonaws.com: 52.217.161.89
-  github-production-release-asset-2e65be.s3.amazonaws.com: 16.15.192.142
-  github-production-repository-file-5c1aeb.s3.amazonaws.com: 52.216.52.185
-  github-production-user-asset-6210df.s3.amazonaws.com: 16.182.42.249
+  github-cloud.s3.amazonaws.com: 16.15.252.206
+  github-com.s3.amazonaws.com: 52.217.140.65
+  github-production-release-asset-2e65be.s3.amazonaws.com: 16.15.223.194
+  github-production-repository-file-5c1aeb.s3.amazonaws.com: 3.5.6.161
+  github-production-user-asset-6210df.s3.amazonaws.com: 16.15.183.87
   github.blog: 192.0.66.2
   github.com: 20.205.243.166
   github.community: 140.82.112.18
-  github.githubassets.com: 185.199.110.154
+  github.githubassets.com: 185.199.111.154
   github.global.ssl.fastly.net: 151.101.193.194
-  github.io: 185.199.111.153
+  github.io: 185.199.110.153
   github.map.fastly.net: 185.199.110.133
-  githubstatus.com: 185.199.111.153
-  live.github.com: 140.82.113.26
+  githubstatus.com: 185.199.110.153
+  live.github.com: 140.82.113.25
   media.githubusercontent.com: 185.199.110.133
   objects.githubusercontent.com: 185.199.110.133
   pipelines.actions.githubusercontent.com: 13.107.42.16
