@@ -1,7 +1,7 @@
 # Name: MihomoAllInOne_Full
 # Designer: zhvvven
-# Version: v2
-# Date: 2026-02-16
+# Version: v3
+# Date: 2026-04-09
 
 mixed-port: 7890
 unified-delay: true
@@ -109,14 +109,8 @@ dns:
     - https://dns.alidns.com/dns-query
     - https://sm2.doh.pub/dns-query
     - https://doh.onedns.net/dns-query
-  nameserver-policy:
-    "geosite:gfw,geolocation-!cn":
-      - https://1.1.1.1/dns-query
-      - https://8.8.8.8/dns-query
-    "geosite:cn,private":
-      - https://dns.alidns.com/dns-query
-      - https://sm2.doh.pub/dns-query
-      - https://doh.onedns.net/dns-query
+    - https://doh.cmliussss.com/CMLiussss
+    - https://doh.cmliussss.net/CMLiussss
 
 Providers: &Providers {type: http, interval: 86400, health-check: {enable: true, url: 'https://connectivitycheck.gstatic.com/generate_204', interval: 300}, exclude-filter: '(?i)流量|倍率|轮询|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|失联|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|COM|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author'}
 Select: &Select {type: select, interval: 300, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204'}
