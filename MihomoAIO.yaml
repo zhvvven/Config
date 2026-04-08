@@ -47,53 +47,10 @@ tun:
   auto-route: true
   auto-detect-interface: true
   strict-route: true
-
-hosts:
-  alive.github.com: 140.82.114.25
-  api.github.com: 20.205.243.168
-  api.individual.githubcopilot.com: 140.82.113.21
-  avatars.githubusercontent.com: 185.199.108.133
-  avatars0.githubusercontent.com: 185.199.108.133
-  avatars1.githubusercontent.com: 185.199.108.133
-  avatars2.githubusercontent.com: 185.199.108.133
-  avatars3.githubusercontent.com: 185.199.108.133
-  avatars4.githubusercontent.com: 185.199.108.133
-  avatars5.githubusercontent.com: 185.199.108.133
-  camo.githubusercontent.com: 185.199.108.133
-  central.github.com: 140.82.114.21
-  cloud.githubusercontent.com: 185.199.108.133
-  codeload.github.com: 20.205.243.165
-  collector.github.com: 140.82.113.22
-  desktop.githubusercontent.com: 185.199.108.133
-  favicons.githubusercontent.com: 185.199.108.133
-  gist.github.com: 20.205.243.166
-  github-cloud.s3.amazonaws.com: 16.15.199.61
-  github-com.s3.amazonaws.com: 16.15.191.41
-  github-production-release-asset-2e65be.s3.amazonaws.com: 3.5.7.105
-  github-production-repository-file-5c1aeb.s3.amazonaws.com: 52.217.167.25
-  github-production-user-asset-6210df.s3.amazonaws.com: 16.15.220.54
-  github.blog: 192.0.66.2
-  github.com: 20.205.243.166
-  github.community: 140.82.113.17
-  github.githubassets.com: 185.199.110.154
-  github.global.ssl.fastly.net: 151.101.193.194
-  github.io: 185.199.111.153
-  github.map.fastly.net: 185.199.108.133
-  githubstatus.com: 185.199.111.153
-  live.github.com: 140.82.113.26
-  media.githubusercontent.com: 185.199.108.133
-  objects.githubusercontent.com: 185.199.108.133
-  pipelines.actions.githubusercontent.com: 13.107.42.16
-  raw.githubusercontent.com: 185.199.108.133
-  user-images.githubusercontent.com: 185.199.108.133
-  vscode.dev: 13.107.226.39
-  education.github.com: 140.82.114.22
-  private-user-images.githubusercontent.com: 185.199.108.133
-
+  
 dns:
   enable: true
   cache-algorithm: arc
-  prefer-h3: true
   listen: 0.0.0.0:1053
   ipv6: false
   default-nameserver:
@@ -103,8 +60,6 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - "geosite:cn,private,fakeip-filter"
-    - "*.msftconnecttest.com"
-    - "*.msftncsi.com"
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://sm2.doh.pub/dns-query
@@ -118,7 +73,7 @@ UrlTest: &UrlTest {type: url-test, interval: 30, tolerance: 20, lazy: true, url:
 Balance: &Balance {type: load-balance, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', strategy: consistent-hashing, hidden: true}
 FallBack: &FallBack {type: fallback, interval: 30, lazy: true, url: 'https://connectivitycheck.gstatic.com/generate_204', hidden: true}
 
-Used: &Used [飞兔云, 淘气兔, 九月鹿, 阿拉丁]
+Used: &Used [飞兔云, 淘气兔, 九月鹿]
 FilterHK: &FilterHK "(?i)香港|🇭🇰|HK|Hong"
 FilterSG: &FilterSG "(?i)新加坡|🇸🇬|SG|Singapore"
 FilterJP: &FilterJP "(?i)日本|🇯🇵|JP|Japan"
@@ -152,12 +107,6 @@ proxy-providers:
     path: ./providers/九月鹿.yaml
     override:
       additional-prefix: "[九月鹿]"
-  阿拉丁:
-    <<: *Providers
-    url:
-    path: ./providers/阿拉丁.yaml
-    override:
-      additional-prefix: "[阿拉丁]"
 
 proxy-groups:
   - {name: 节点选择, type: select, proxies: [香港自动, 日本自动, 坡县自动, 美国自动], icon: https://testingcf.jsdelivr.net/gh/Semporia/Hand-Painted-icon@master/Universal/Airport.png}
