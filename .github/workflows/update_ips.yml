@@ -1,0 +1,51 @@
+name: Hourly Update CF IPs
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch: 
+
+jobs:
+  update-ips:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch API and Generate ip.txt
+        run: |
+          mkdir -p bestcf
+          
+          curl -sL "https://vps789.com/openApi/cfIpApi" | \
+          jq -r '.data | to_entries[] | .key as $k | .value[] | "\(.ip) \($k)"' | \
+          while read -r ip type; do
+            port=$(shuf -i 1-65535 -n 1)
+            
+            case "$type" in
+              "CT")     suffix="#电信优选" ;;
+              "CU")     suffix="#联通优选" ;;
+              "CM")     suffix="#移动优选" ;;
+              "AllAvg") suffix="#三网优选" ;;
+              *)        suffix="#其他" ;;
+            esac
+            
+            echo "${ip}:${port}${suffix}"
+          done > bestcf/ip.txt
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add bestcf/ip.txt
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto update IPs: $(date +'%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "No changes to commit."
+          fi
