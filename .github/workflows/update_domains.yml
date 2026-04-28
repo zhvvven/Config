@@ -1,0 +1,42 @@
+name: Update CF Domains
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: 
+
+jobs:
+  update-cf-domains:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch API and Generate TXT
+        run: |
+          mkdir -p bestcf
+          
+          curl -sL "https://vps789.com/openApi/cfIpTop20" | jq -r '.data.good[].ip' | while read -r ip; do
+            if [ -n "$ip" ]; then
+              port=$(shuf -i 1-65535 -n 1)
+              echo "$ip:$port#优选域名"
+            fi
+          done > bestcf/domain.txt
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add bestcf/domain.txt
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto update CF domains: $(date +'%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "No changes to commit (Domains and ports happened to be identical)."
+          fi
