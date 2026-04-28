@@ -23,8 +23,6 @@ jobs:
           curl -sL "https://vps789.com/openApi/cfIpApi" | \
           jq -r '.data | to_entries[] | .key as $k | .value[] | "\(.ip) \($k)"' | \
           while read -r ip type; do
-            port=$(shuf -i 1-65535 -n 1)
-            
             case "$type" in
               "CT")     suffix="#电信优选" ;;
               "CU")     suffix="#联通优选" ;;
@@ -33,7 +31,7 @@ jobs:
               *)        suffix="#其他" ;;
             esac
             
-            echo "${ip}:${port}${suffix}"
+            echo "${ip}${suffix}"
           done > bestcf/ip.txt
 
       - name: Commit and Push Changes
