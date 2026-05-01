@@ -1,7 +1,7 @@
 # Name: MihomoAllInOne_Full
 # Designer: zhvvven
 # Version: v3
-# Date: 2026-04-09
+# Date: 2026-05-01
 
 mixed-port: 7890
 unified-delay: true
@@ -124,7 +124,6 @@ rule-providers:
   AdRules: {<<: *dmrs, url: https://adrules.top/adrules-mihomo.mrs, path: ./ruleset/AdRules.mrs}
 
 rules:
-  - DOMAIN-SUFFIX, api.chatanywhere.tech, DIRECT
   - RULE-SET, anti-AD, REJECT
   - RULE-SET, AdRules, REJECT
   - GEOIP, telegram, 电报信息
