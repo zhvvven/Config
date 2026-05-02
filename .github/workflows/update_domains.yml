@@ -23,10 +23,9 @@ jobs:
         run: |
           mkdir -p bestcf
           
-          curl -sL "https://vps789.com/openApi/cfIpTop20" | jq -r '.data.good[].ip' | while read -r ip; do
+          curl -sL "https://vps789.com/openApi/cfIpTop20" | jq -r '.data.good[].ip' | head -n 10 | while read -r ip; do
             if [ -n "$ip" ]; then
-              port=$(shuf -e 443 2053 2083 2087 2096 8443 -n 1)
-              echo "$ip:$port#优选域名"
+              echo "$ip:443#优选域名"
             fi
           done > bestcf/domain.txt
 
@@ -41,5 +40,5 @@ jobs:
             git commit -m "Auto update CF domains: $(date +'%Y-%m-%d %H:%M:%S')"
             git push
           else
-            echo "No changes to commit (Domains and ports happened to be identical)."
+            echo "No changes to commit."
           fi
