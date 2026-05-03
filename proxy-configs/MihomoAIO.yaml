@@ -61,7 +61,7 @@ dns:
   fake-ip-filter:
     - "geosite: cn, private, fakeip-filter"
   nameserver:
-    - https://doh.xn--tfsa.dpdns.org/doh
+    - https://doh.xn--tfsa.dpdns.org/dns-query
   nameserver-policy:
     "geosite: cn":
       - https://dns.alidns.com/dns-query
