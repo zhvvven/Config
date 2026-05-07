@@ -38,7 +38,7 @@ jobs:
           git add bestcf/domain.txt
           
           if ! git diff --staged --quiet; then
-            git commit -m "Auto update CF domains: $(date +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "Auto update Domains: $(date +'%Y-%m-%d %H:%M:%S')"
             git push
           else
             echo "No changes to commit."
