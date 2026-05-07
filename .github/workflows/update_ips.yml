@@ -23,19 +23,9 @@ jobs:
         run: |
           mkdir -p bestcf
           
-          curl -sL "https://vps789.com/openApi/cfIpApi" | \
-          jq -r '.data | to_entries[] | .key as $k | .value[] | "\(.ip) \($k)"' | \
-          while read -r ip type; do
-            case "$type" in
-              "CT")     suffix="#电信优选" ;;
-              "CU")     suffix="#联通优选" ;;
-              "CM")     suffix="#移动优选" ;;
-              "AllAvg") suffix="#三网优选" ;;
-              *)        suffix="#其他" ;;
-            esac
-            
-            echo "${ip}:443${suffix}"
-          done > bestcf/ip.txt
+          curl -sL "https://ip.164746.xyz/ipTop10.html" | \
+          tr ',' '\n' | \
+          sed 's/$/:443#优选IP/' > bestcf/ip.txt
 
       - name: Commit and Push Changes
         run: |
