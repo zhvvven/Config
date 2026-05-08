@@ -1,0 +1,40 @@
+name: Debug API Response
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  debug-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch API and Debug
+        run: |
+          echo "==== 开始请求接口 ===="
+          # 获取接口完整的 HTTP 状态码和响应体，并存入变量
+          RESPONSE=$(curl -w "\nHTTP_STATUS:%{http_code}" -sL "https://vps789.com/openApi/cfIpTop20")
+          
+          echo "==== 接口返回内容 ===="
+          # 打印完整响应
+          echo "$RESPONSE"
+          
+          echo "==== 提取状态码和响应体 ===="
+          # 提取状态码
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
+          # 提取原始数据（去掉最后一行状态码）
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP 状态码: $HTTP_STATUS"
+          echo "响应数据首部 (前500字符):"
+          echo "$BODY" | cut -c1-500
+          
+          echo "==== 尝试使用 jq 解析 ===="
+          # 测试原本的 jq 解析是否正常工作
+          if echo "$BODY" | jq . >/dev/null 2>&1; then
+            echo "✅ 接口返回的是有效的 JSON 格式"
+            echo "提取 .data.good[].ip 的结果："
+            echo "$BODY" | jq -r '.data.good[].ip' || echo "❌ 提取 IP 失败，可能是路径 .data.good[].ip 不存在"
+          else
+            echo "❌ 接口返回的不是有效的 JSON 格式！"
+            echo "可能是遭遇了反爬防火墙，或者接口返回了 HTML 错误页面。"
+          fi
