@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir -p bestcf
           
-          curl -sL "https://vps789.com/openApi/cfIpTop20" | jq -r '.data.good[].ip' | head -n 10 | while read -r ip; do
+          curl -skL "https://vps789.com/openApi/cfIpTop20" | jq -r '.data.good[].ip' | head -n 10 | while read -r ip; do
             if [ -n "$ip" ]; then
               echo "$ip:443#优选域名"
             fi
