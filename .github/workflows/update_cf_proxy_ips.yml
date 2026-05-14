@@ -41,7 +41,7 @@ jobs:
           import socket
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
-          url = "https://github.com/xgonce/Cloudflare_IP/raw/refs/heads/main/result.csv"
+          url = "https://github.com/xgonce/Cloudflare_IP/raw/main/result.csv"
           output_file = "bestcf/cf-proxy-ip.txt"
           
           def test_tcp(ip, port):
