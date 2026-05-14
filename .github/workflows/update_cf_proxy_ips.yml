@@ -1,4 +1,4 @@
-name: Update Cloudflare Meta IPs
+name: Update Cloudflare Proxy IPs
 
 on:
   schedule:
@@ -42,7 +42,7 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           url = "https://github.com/xgonce/Cloudflare_IP/raw/refs/heads/main/result.csv"
-          output_file = "bestcf/cf-meta-ip.txt"
+          output_file = "bestcf/cf-proxy-ip.txt"
           
           def test_tcp(ip, port):
               try:
@@ -84,7 +84,7 @@ jobs:
                       if ipv4_pattern.match(ip):
                           raw_nodes.append((ip, port))
               
-              print(f"1. 成功提取了 {len(raw_nodes)} 个 IPv4 节点。")
+              print(f"1. 成功提取了 {len(raw_nodes)} 个 Proxyip 节点。")
 
               print("2. 正在进行 TCP 连通性筛选 (并发: 50)...")
               tcp_passed = []
@@ -94,7 +94,7 @@ jobs:
                       if future.result():
                           tcp_passed.append(futures[future])
               
-              print(f"TCP 筛选通过: {len(tcp_passed)} 个节点。")
+              print(f"TCP 筛选通过: {len(tcp_passed)} 个 Proxyip 节点。")
 
               print("3. 正在进行 API 可用性二次筛选 (并发: 30)...")
               api_passed = []
@@ -104,7 +104,7 @@ jobs:
                       if future.result():
                           api_passed.append(futures[future])
               
-              print(f"API 筛选通过: {len(api_passed)} 个节点。")
+              print(f"API 筛选通过: {len(api_passed)} 个 Proxyip 节点。")
 
               final_nodes = api_passed if api_passed else tcp_passed
 
@@ -113,7 +113,7 @@ jobs:
               with open(output_file, "w") as f:
                   f.write("\n".join(results))
                   
-              print(f"Done! 最终保存了 {len(results)} 个高质量 IPv4 地址。")
+              print(f"Done! 最终保存了 {len(results)} 个 Proxyip 节点。")
           except Exception as e:
               print(f"Error: {e}")
               exit(1)
@@ -124,10 +124,10 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add bestcf/cf-meta-ip.txt
+          git add bestcf/cf-proxy-ip.txt
           
           if ! git diff --staged --quiet; then
-            git commit -m "Auto update Domains: $(date +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "Auto update Proxyip: $(date +'%Y-%m-%d %H:%M:%S')"
             git push
           else
             echo "No changes to commit."
