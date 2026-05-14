@@ -1,4 +1,4 @@
-name: Update Cloudflare IPs
+name: Update Cloudflare Meta IPs
 
 on:
   schedule:
@@ -29,7 +29,7 @@ jobs:
         run: |
           pip install requests
 
-      - name: Fetch CSV, Test and Generate TXT
+      - name: Fetch CSV and Generate TXT
         run: |
           mkdir -p bestcf
           python - <<EOF
@@ -39,32 +39,35 @@ jobs:
           import os
           import io
           import socket
-          import time
-          import subprocess
-          from concurrent.futures import ThreadPoolExecutor
+          from concurrent.futures import ThreadPoolExecutor, as_completed
 
-          # ================= 配置参数 =================
-          URL = "https://github.com/xgonce/Cloudflare_IP/raw/refs/heads/main/result.csv"
-          OUTPUT_FILE = "bestcf/cf-meta-ip.txt"
+          url = "https://github.com/xgonce/Cloudflare_IP/raw/refs/heads/main/result.csv"
+          output_file = "bestcf/cf-meta-ip.txt"
           
-          TCP_TIMEOUT = 2.0
-          TCP_MAX_WORKERS = 100
-          
-          # 为了防止 GitHub Actions 运行超时，提取 TCP 延迟最低的前 N 个节点进入后续耗时测试
-          TOP_TCP_CANDIDATES = 100 
-          
-          API_MAX_WORKERS = 30
-          AVAILABILITY_CHECK_API = "https://api.090227.xyz/check"
-          
-          BW_MAX_WORKERS = 10
-          BANDWIDTH_SIZE_MB = 1.0  # 测速下载大小
-          BANDWIDTH_TIMEOUT = 5
-          BW_URL = f"https://speed.cloudflare.com/__down?bytes={int(BANDWIDTH_SIZE_MB * 1024 * 1024)}"
-          # ============================================
+          def test_tcp(ip, port):
+              try:
+                  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                      sock.settimeout(2.0)
+                      sock.connect((ip, int(port)))
+                  return True
+              except:
+                  return False
 
-          print("⏳ 1. 正在从远程获取并解析 CSV 数据...")
+          def test_availability(ip, port):
+              try:
+                  resp = requests.get(
+                      "https://api.090227.xyz/check", 
+                      params={"proxyip": f"{ip}:{port}"}, 
+                      timeout=5.0
+                  )
+                  if resp.status_code == 200 and resp.json().get("success") is True:
+                      return True
+              except:
+                  pass
+              return False
+
           try:
-              response = requests.get(URL, timeout=10)
+              response = requests.get(url)
               response.raise_for_status()
               
               f_in = io.StringIO(response.text.strip())
@@ -80,120 +83,40 @@ jobs:
                       port = row[2].strip()
                       if ipv4_pattern.match(ip):
                           raw_nodes.append((ip, port))
-              print(f"✅ 成功获取 {len(raw_nodes)} 个 IPv4 节点")
-          except Exception as e:
-              print(f"❌ 数据获取或解析失败: {e}")
-              exit(1)
+              
+              print(f"1. 成功提取了 {len(raw_nodes)} 个 IPv4 节点。")
 
-          if not raw_nodes:
-              print("❌ 没有找到有效的 IPv4 节点，退出。")
-              exit(1)
+              print("2. 正在进行 TCP 连通性筛选 (并发: 50)...")
+              tcp_passed = []
+              with ThreadPoolExecutor(max_workers=50) as executor:
+                  futures = {executor.submit(test_tcp, ip, port): (ip, port) for ip, port in raw_nodes}
+                  for future in as_completed(futures):
+                      if future.result():
+                          tcp_passed.append(futures[future])
+              
+              print(f"TCP 筛选通过: {len(tcp_passed)} 个节点。")
 
-          # --- 第一阶段：TCP 延迟测试 ---
-          print(f"\n⏳ 2. 开始 TCP 连接测试 (并发: {TCP_MAX_WORKERS}, 超时: {TCP_TIMEOUT}s)...")
-          def test_tcp(node):
-              ip, port = node
-              try:
-                  start = time.time()
-                  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                      sock.settimeout(TCP_TIMEOUT)
-                      sock.connect((ip, int(port)))
-                  return node, time.time() - start
-              except Exception:
-                  return node, float('inf')
+              print("3. 正在进行 API 可用性二次筛选 (并发: 30)...")
+              api_passed = []
+              with ThreadPoolExecutor(max_workers=30) as executor:
+                  futures = {executor.submit(test_availability, ip, port): (ip, port) for ip, port in tcp_passed}
+                  for future in as_completed(futures):
+                      if future.result():
+                          api_passed.append(futures[future])
+              
+              print(f"API 筛选通过: {len(api_passed)} 个节点。")
 
-          tcp_results = []
-          with ThreadPoolExecutor(max_workers=TCP_MAX_WORKERS) as executor:
-              for node, latency in executor.map(test_tcp, raw_nodes):
-                  if latency < float('inf'):
-                      tcp_results.append((node, latency))
+              final_nodes = api_passed if api_passed else tcp_passed
 
-          tcp_results.sort(key=lambda x: x[1])
-          candidates = [x[0] for x in tcp_results[:TOP_TCP_CANDIDATES]]
-          print(f"✅ TCP 筛选完成，保留延迟最低的前 {len(candidates)} 个节点进入下一轮。")
+              results = [f"{ip}:{port}" for ip, port in final_nodes]
 
-          if not candidates:
-              print("❌ 所有节点 TCP 测试均失败，退出。")
-              exit(1)
-
-          # --- 第二阶段：API 可用性二次筛选 ---
-          print(f"\n⏳ 3. 开始 IP 可用性二次筛选 (并发: {API_MAX_WORKERS})...")
-          def test_availability(node):
-              ip, port = node
-              try:
-                  resp = requests.get(
-                      AVAILABILITY_CHECK_API,
-                      params={"proxyip": f"{ip}:{port}"},
-                      timeout=5
-                  )
-                  if resp.status_code == 200 and resp.json().get("success") is True:
-                      return node, True
-              except Exception:
-                  pass
-              return node, False
-
-          avail_results = []
-          with ThreadPoolExecutor(max_workers=API_MAX_WORKERS) as executor:
-              for node, is_ok in executor.map(test_availability, candidates):
-                  if is_ok:
-                      avail_results.append(node)
-          print(f"✅ 可用性筛选完成，通过 {len(avail_results)} 个节点。")
-
-          if not avail_results:
-              print("⚠️ 可用性筛选无节点通过，为了保证有数据输出，降级使用 TCP 筛选结果。")
-              avail_results = candidates
-
-          # --- 第三阶段：curl 带宽测速 ---
-          print(f"\n⏳ 4. 开始 curl 带宽测速 (并发: {BW_MAX_WORKERS}, 超时: {BANDWIDTH_TIMEOUT}s)...")
-          def test_bandwidth(node):
-              ip, port = node
-              curl_cmd = [
-                  "curl", "-s", "-o", "/dev/null",
-                  "-w", "%{size_download} %{time_total}",
-                  "--resolve", f"speed.cloudflare.com:{port}:{ip}",
-                  "--connect-timeout", "3",
-                  "--max-time", str(BANDWIDTH_TIMEOUT),
-                  "--insecure",
-                  BW_URL
-              ]
-              try:
-                  result = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=BANDWIDTH_TIMEOUT + 2)
-                  if result.returncode == 0 and result.stdout.strip():
-                      parts = result.stdout.strip().split()
-                      if len(parts) >= 2:
-                          size_bytes = float(parts[0])
-                          time_total = float(parts[1])
-                          if time_total > 0 and size_bytes > 0:
-                              speed_mbps = (size_bytes * 8) / (time_total * 1000 * 1000)
-                              return node, speed_mbps
-              except Exception:
-                  pass
-              return node, 0.0
-
-          final_results = []
-          with ThreadPoolExecutor(max_workers=BW_MAX_WORKERS) as executor:
-              for node, speed in executor.map(test_bandwidth, avail_results):
-                  if speed > 0:
-                      final_results.append((node, speed))
-
-          final_results.sort(key=lambda x: x[1], reverse=True)
-          print(f"✅ 测速完成，最终获得 {len(final_results)} 个有效节点。")
-
-          # 如果测速全军覆没，则降级使用未测速的可用节点
-          if not final_results:
-              print("⚠️ 所有节点测速失败或为0，降级保存所有通过可用性测试的节点。")
-              final_nodes = avail_results
-          else:
-              final_nodes = [node for node, speed in final_results]
-              for i, ((ip, port), speed) in enumerate(final_results[:10], 1):
-                  print(f"  🏆 Top {i}: {ip}:{port} - {speed:.2f} Mbps")
-
-          # --- 写入文件 ---
-          with open(OUTPUT_FILE, "w") as f:
-              for ip, port in final_nodes:
-                  f.write(f"{ip}:{port}\n")
+              with open(output_file, "w") as f:
+                  f.write("\n".join(results))
                   
-          print(f"\n🎉 成功将 {len(final_nodes)} 个节点保存到 {OUTPUT_FILE}")
+              print(f"Done! 最终保存了 {len(results)} 个高质量 IPv4 地址。")
+          except Exception as e:
+              print(f"Error: {e}")
+              exit(1)
           EOF
 
       - name: Commit and Push Changes
