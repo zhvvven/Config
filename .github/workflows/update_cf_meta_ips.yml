@@ -1,0 +1,84 @@
+name: Update Cloudflare Meta IPs
+
+on:
+  schedule:
+    - cron: '0 16,22,4,10 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-cf-ips:
+    runs-on: ubuntu-latest
+
+    env:
+      TZ: Asia/Shanghai
+    
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          pip install requests
+
+      - name: Fetch CSV and Generate TXT
+        run: |
+          mkdir -p bestcf
+          python - <<EOF
+          import csv
+          import requests
+          import re
+          import os
+          import io
+
+          url = "https://github.com/xgonce/Cloudflare_IP/raw/refs/heads/main/result.csv"
+          output_file = "bestcf/cf-meta-ip.txt"
+          
+          try:
+              response = requests.get(url)
+              response.raise_for_status()
+              
+              f_in = io.StringIO(response.text.strip())
+              reader = csv.reader(f_in)
+              next(reader, None)
+
+              ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
+              results = []
+              
+              for row in reader:
+                  if len(row) >= 3:
+                      ip = row[1].strip()
+                      port = row[2].strip()
+                      if ipv4_pattern.match(ip):
+                          results.append(f"{ip}:{port}")
+
+              with open(output_file, "w") as f:
+                  f.write("\n".join(results))
+                  
+              print(f"Done! Processed {len(results)} IPv4 addresses.")
+          except Exception as e:
+              print(f"Error: {e}")
+              exit(1)
+          EOF
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add bestcf/cf-meta-ip.txt
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto update Domains: $(date +'%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "No changes to commit."
+          fi
