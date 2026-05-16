@@ -1,14 +1,16 @@
-name: Fetch and Check SSTP Proxies
+name: Update SSTP
 
 on:
   schedule:
-    # 每天 UTC 时间 00:00 (北京时间早上 8:00) 自动运行一次
     - cron: '0 0 * * *'
-  workflow_dispatch: # 允许手动点击按钮触发
+  workflow_dispatch:
 
 jobs:
   update-proxies:
     runs-on: ubuntu-latest
+
+    env:
+      TZ: Asia/Shanghai
 
     steps:
       - name: Checkout Repository
@@ -26,7 +28,6 @@ jobs:
 
       - name: Create and Run Script
         run: |
-          # 将 Python 脚本直接写入当前运行环境
           cat << 'EOF' > check_proxies.py
           import requests
           import re
@@ -90,7 +91,6 @@ jobs:
               main()
           EOF
           
-          # 执行上面刚刚写出的 Python 脚本
           python check_proxies.py
 
       - name: Commit and Push Changes
@@ -99,5 +99,4 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           git add bestcf/sstp.txt
-          # 如果文件发生了变动，则提交推送；如果没有变动，则跳过
-          git diff --staged --quiet || (git commit -m "Auto-update valid SSTP proxies" && git push)
+          git diff --staged --quiet || (git commit -m "Auto update SSTP: $(date +'%Y-%m-%d %H:%M:%S')" && git push)
