@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-proxies:
+  update-sstp:
     runs-on: ubuntu-latest
 
     env:
