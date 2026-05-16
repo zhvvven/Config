@@ -6,7 +6,7 @@ on:
   workflow_dispatch: 
 
 jobs:
-  update-cf-domains:
+  update-cf-domain:
     runs-on: ubuntu-latest
 
     env:
