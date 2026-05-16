@@ -1,4 +1,4 @@
-name: Update Cloudflare Proxy IPs
+name: Update Cloudflare Proxy IP
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-cf-ips:
+  update-cf-ip:
     runs-on: ubuntu-latest
 
     env:
