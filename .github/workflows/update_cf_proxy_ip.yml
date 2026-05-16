@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-cf-ip:
+  update-cf-proxyip:
     runs-on: ubuntu-latest
 
     env:
