@@ -1,6 +1,3 @@
-saas.sin.fan:443#日本家宽$sstp://vpn:vpn@vpn945893058.opengw.net:1242
-saas.sin.fan:443#韩国家宽$sstp://vpn:vpn@vpn598069714.opengw.net:1864
-saas.sin.fan:443#美国家宽$sstp://vpn:vpn@vpn594678897.opengw.net:1888
 47.239.172.165:587#中国香港
 47.245.139.226:443#德国法兰克福
 47.251.126.86:443#美国圣何塞
