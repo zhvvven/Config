@@ -1,4 +1,4 @@
-name: Update CF Domain
+name: Update Cloudflare Domain
 
 on:
   schedule:
