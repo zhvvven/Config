@@ -33,6 +33,7 @@ jobs:
           import re
           import os
           import urllib.parse
+          from collections import defaultdict
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           SOURCE_URL = "https://sub.cmliussss.net/vpngate"
@@ -49,9 +50,16 @@ jobs:
                       company_score = exit_data.get("company", {}).get("abuser_score", "")
                       asn_score = exit_data.get("asn", {}).get("abuser_score", "")
                       
-                      if "Very Low" in company_score or "Very Low" in asn_score:
+                      if "Very Low" in company_score and "Very Low" in asn_score:
                           country = exit_data.get("location", {}).get("country", "Unknown")
-                          return f"cdn.31514926.xyz:443#{country}家宽${link}"
+                          response_time = data.get("responseTime", 999999) 
+                          formatted_link = f"cdn.31514926.xyz:443#{country}家宽${link}"
+                          
+                          return {
+                              "country": country,
+                              "responseTime": response_time,
+                              "formatted_link": formatted_link
+                          }
               except Exception:
                   pass
               return None
@@ -68,22 +76,30 @@ jobs:
                   return
 
               print("开始并发检测节点连通性和 IP 质量...")
-              valid_nodes = []
+              
+              grouped_nodes = defaultdict(list)
               
               with ThreadPoolExecutor(max_workers=20) as executor:
                   future_to_link = {executor.submit(check_proxy, link): link for link in links}
                   for future in as_completed(future_to_link):
                       result = future.result()
                       if result:
-                          valid_nodes.append(result)
-                          print(f"成功匹配节点: {result}")
+                          grouped_nodes[result["country"]].append(result)
+                          print(f"成功匹配节点: {result['formatted_link']} (延迟: {result['responseTime']}ms)")
 
-              print(f"\n检测完成，共找到 {len(valid_nodes)} 个符合条件的节点。")
+              final_nodes = []
+              for country, nodes in grouped_nodes.items():
+                  nodes.sort(key=lambda x: x["responseTime"])
+                  top_nodes = nodes[:3]
+                  for node in top_nodes:
+                      final_nodes.append(node["formatted_link"])
+
+              print(f"\n检测与筛选完成，共保留 {len(final_nodes)} 个最优节点。")
 
               os.makedirs("bestcf", exist_ok=True)
               file_path = "bestcf/sstp.txt"
               with open(file_path, "w", encoding="utf-8") as f:
-                  for node in valid_nodes:
+                  for node in final_nodes:
                       f.write(node + "\n")
               print(f"结果已保存至 {file_path}")
 
@@ -99,4 +115,10 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           git add bestcf/sstp.txt
-          git diff --staged --quiet || (git commit -m "Auto update SSTP: $(date +'%Y-%m-%d %H:%M:%S')" && git push)
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto update SSTP: $(date +'%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "No changes to commit."
+          fi
