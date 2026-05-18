@@ -38,36 +38,38 @@ jobs:
           import re
           import os
           import io
-          import socket
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           url = "https://github.com/xgonce/Cloudflare_IP/raw/main/result.csv"
           output_file = "bestcf/cf-proxy-ip.txt"
           
-          def test_tcp(ip, port):
-              try:
-                  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                      sock.settimeout(2.0)
-                      sock.connect((ip, int(port)))
-                  return True
-              except:
-                  return False
+          ALLOWED_COUNTRIES = ["HK", "SG", "JP", "US"]
 
-          def test_availability(ip, port):
+          def check_node(ip, port):
               try:
                   resp = requests.get(
                       "https://api.090227.xyz/check", 
                       params={"proxyip": f"{ip}:{port}"}, 
-                      timeout=5.0
+                      timeout=10.0
                   )
-                  if resp.status_code == 200 and resp.json().get("success") is True:
-                      return True
-              except:
+                  if resp.status_code == 200:
+                      data = resp.json()
+                      if data.get("success") is True and data.get("inferred_stack") == "ipv4_only":
+                          try:
+                              country = data["probe_results"]["ipv4"]["exit"]["country"]
+                          except KeyError:
+                              country = None
+                          
+                          if country in ALLOWED_COUNTRIES:
+                              resp_time = data.get("responseTime", 9999)
+                              return {"ip": ip, "port": port, "country": country, "time": resp_time}
+              except Exception:
                   pass
-              return False
+              return None
 
           try:
-              response = requests.get(url)
+              print("1. 正在获取并解析 CSV 文件...")
+              response = requests.get(url, timeout=10.0)
               response.raise_for_status()
               
               f_in = io.StringIO(response.text.strip())
@@ -84,36 +86,39 @@ jobs:
                       if ipv4_pattern.match(ip):
                           raw_nodes.append((ip, port))
               
-              print(f"1. 成功提取了 {len(raw_nodes)} 个 Proxyip 节点。")
+              print(f"-> 成功提取了 {len(raw_nodes)} 个待测节点。")
 
-              print("2. 正在进行 TCP 连通性筛选 (并发: 50)...")
-              tcp_passed = []
+              print(f"\n2. 正在进行 API 筛选及地区({','.join(ALLOWED_COUNTRIES)})过滤 (并发: 50)...")
+              valid_nodes = []
               with ThreadPoolExecutor(max_workers=50) as executor:
-                  futures = {executor.submit(test_tcp, ip, port): (ip, port) for ip, port in raw_nodes}
+                  futures = [executor.submit(check_node, ip, port) for ip, port in raw_nodes]
                   for future in as_completed(futures):
-                      if future.result():
-                          tcp_passed.append(futures[future])
+                      res = future.result()
+                      if res:
+                          valid_nodes.append(res)
               
-              print(f"TCP 筛选通过: {len(tcp_passed)} 个 Proxyip 节点。")
+              print(f"-> 筛选完成，共有 {len(valid_nodes)} 个节点符合协议与地区条件。")
 
-              print("3. 正在进行 API 可用性二次筛选 (并发: 30)...")
-              api_passed = []
-              with ThreadPoolExecutor(max_workers=30) as executor:
-                  futures = {executor.submit(test_availability, ip, port): (ip, port) for ip, port in tcp_passed}
-                  for future in as_completed(futures):
-                      if future.result():
-                          api_passed.append(futures[future])
-              
-              print(f"API 筛选通过: {len(api_passed)} 个 Proxyip 节点。")
+              print("\n3. 正在按地区分类、按照 responseTime 排序并截取前 20 个...")
+              grouped_nodes = {c: [] for c in ALLOWED_COUNTRIES}
+              for node in valid_nodes:
+                  grouped_nodes[node["country"]].append(node)
 
-              final_nodes = api_passed if api_passed else tcp_passed
-
-              results = [f"{ip}:{port}" for ip, port in final_nodes]
-
-              with open(output_file, "w") as f:
-                  f.write("\n".join(results))
+              final_results = []
+              for country in ALLOWED_COUNTRIES:
+                  nodes_in_country = grouped_nodes[country]
+                  nodes_in_country.sort(key=lambda x: x["time"])
+                  top_nodes = nodes_in_country[:20]
                   
-              print(f"Done! 最终保存了 {len(results)} 个 Proxyip 节点。")
+                  for node in top_nodes:
+                      final_results.append(f"{node['ip']}:{node['port']}#{node['country']}")
+                      
+                  print(f"-> {country} 地区保留了 {len(top_nodes)} 个最优节点。")
+
+              with open(output_file, "w", encoding="utf-8") as f:
+                  f.write("\n".join(final_results))
+                  
+              print(f"\nDone! 最终合并保存了 {len(final_results)} 个 Proxyip 节点到 {output_file}。")
           except Exception as e:
               print(f"Error: {e}")
               exit(1)
